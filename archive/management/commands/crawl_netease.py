@@ -20,8 +20,7 @@ class Command(BaseCommand):
         (cache / f"playlist-{options['playlist_id']}.json").write_text(json.dumps(songs, ensure_ascii=False, indent=2), encoding='utf-8')
         created = 0
         for item in songs:
-            artist, _ = Artist.objects.get_or_create(name=item['artist'], defaults={'image_url': item.get('artist_image_url', ''), 'bio': item.get('artist_bio', ''), 'source_url': item.get('artist_source_url', 'https://music.163.com/')})
-            updated = {k: item.get(k, '') for k in ('lyrics', 'image_url', 'source_url')}
-            _, was_created = Song.objects.update_or_create(title=item['title'], artist=artist, defaults=updated)
+            artist, _ = Artist.objects.get_or_create(name=item['artist'], defaults={'image_url': '', 'source_url': 'https://music.163.com/'})
+            _, was_created = Song.objects.get_or_create(title=item['title'], artist=artist, defaults={k: item[k] for k in ('lyrics', 'image_url', 'source_url')})
             created += was_created
         self.stdout.write(self.style.SUCCESS(f'网易云爬取 {len(songs)} 首，新增 {created} 首；缓存已写入 {cache}'))

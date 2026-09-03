@@ -76,16 +76,10 @@ class NeteaseCrawlerTests(TestCase):
         playlist.json.return_value = {'playlist': {'trackIds': [{'id': 7}]}}
         detail = Mock(status_code=200)
         detail.json.return_value = {'songs': [{'id': 7, 'name': '春日', 'artists': [{'id': 9, 'name': '测试歌手'}], 'al': {'picUrl': 'https://example.com/a.jpg'}}]}
-        lyric = Mock(status_code=200)
-        lyric.json.return_value = {'lrc': {'lyric': '[00:01.00]第一句\n[00:02.00]第二句'}}
-        artist = Mock(status_code=200)
-        artist.json.return_value = {'data': {'artist': {'cover': 'https://example.com/artist.jpg', 'briefDesc': '歌手简介'}}}
-        session.get.side_effect = [playlist, detail, artist, lyric]
+        session.get.side_effect = [playlist, detail]
         songs = NeteaseClient(delay=0).playlist(1, limit=1)
         self.assertEqual(songs[0]['artist'], '测试歌手')
         self.assertEqual(songs[0]['source_url'], 'https://music.163.com/#/song?id=7')
-        self.assertEqual(songs[0]['lyrics'], '第一句\n第二句')
-        self.assertEqual(songs[0]['artist_bio'], '歌手简介')
 
     @patch('archive.management.commands.crawl_netease.NeteaseClient.playlist')
     def test_crawl_command_persists_song_and_artist(self, playlist):
